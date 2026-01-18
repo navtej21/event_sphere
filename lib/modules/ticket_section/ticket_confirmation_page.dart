@@ -1,6 +1,7 @@
 import 'package:event_sphere/models/attendee_form_model.dart';
 import 'package:event_sphere/models/event_model.dart';
 import 'package:event_sphere/modules/ticket_section/attendee_form_card.dart';
+import 'package:event_sphere/services/booking_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -148,12 +149,15 @@ class _TicketConfirmationPageState extends State<TicketConfirmationPage> {
               
               width: double.infinity,
               child: ElevatedButton(
-                
-                
-                onPressed: () {
-                  
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.black,
+                ),      
+                onPressed: ()  async{
+                  await BookingService.bookTicket(attendees,widget.event.eventId!);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: 
+                  Text("Booking Confirmed")));
                 },
-                child: const Text("Confirm Booking"),
+                child: const Text("Confirm Booking",style: TextStyle(color: Colors.white),),
               ),
             ),
           ],

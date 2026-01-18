@@ -1,14 +1,63 @@
 import 'package:event_sphere/models/event_model.dart';
 import 'package:event_sphere/modules/ticket_section/ticket_booking.dart';
+import 'package:event_sphere/services/favorite_service.dart';
+import 'package:event_sphere/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
-class EventDetailsView extends StatelessWidget {
+class EventDetailsView extends StatefulWidget {
   final EventModel event;
 
   EventDetailsView({
     super.key,
     required this.event,
   });
+
+  @override
+  State<EventDetailsView> createState() => _EventDetailsViewState();
+}
+
+class _EventDetailsViewState extends State<EventDetailsView> {
+  bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadFavoriteStatus();
+  }
+
+  Future<void> toggleFavorite() async {
+    try {
+      final token = await SecureStorage.getToken(); 
+
+      final fav = await FavoriteService.toggleFavorite(
+        eventId: widget.event.eventId!,
+        token: '${token}',
+      );
+
+      setState(() {
+        isFavorite = fav;
+      });
+    } catch (e) {
+      debugPrint("Error toggling favorite: $e");
+    }
+  }
+
+  Future<void> loadFavoriteStatus() async {
+    try {
+      final token = await SecureStorage.getToken(); 
+
+      final fav = await FavoriteService.isFavorite(
+        eventId: widget.event.eventId!,
+        token: '${token}',
+      );
+
+      setState(() {
+        isFavorite = fav;
+      });
+    } catch (e) {
+      debugPrint("Error loading favorite status: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +72,11 @@ class EventDetailsView extends StatelessWidget {
             onPressed: () {},
           ),
           IconButton(
-           
-            icon: const Icon(Icons.favorite_border),
-            onPressed: () {},
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+            ),
+            color: isFavorite ? Colors.red : Colors.grey,
+            onPressed: toggleFavorite,
           ),
         ],
       ),
@@ -55,7 +106,7 @@ class EventDetailsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    event.title!,
+                    widget.event.title!,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -67,14 +118,14 @@ class EventDetailsView extends StatelessWidget {
                       Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                       SizedBox(width: 6),
                       Text(
-                        event.title!,
+                        widget.event.title!,
                         style: TextStyle(color: Colors.grey),
                       ),
                       SizedBox(width: 16),
                       Icon(Icons.location_on, size: 16, color: Colors.grey),
                       SizedBox(width: 4),
                       Text(
-                        event.location!,
+                        widget.event.location!,
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -89,7 +140,7 @@ class EventDetailsView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    event.description ?? "No description available.",
+                    widget.event.description ?? "No description available.",
                     style: const TextStyle(
                       fontSize: 14,
                       height: 1.6,
@@ -118,13 +169,14 @@ class EventDetailsView extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        /// LEFT: PRICE & DATE
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              event.fee == 0 ? "FREE" : "₹${event.fee}",
+                              widget.event.fee == 0
+                                  ? "FREE"
+                                  : "₹${widget.event.fee}",
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -132,7 +184,7 @@ class EventDetailsView extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              event.startDate.toString(),
+                              widget.event.startDate.toString(),
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey,
@@ -140,12 +192,11 @@ class EventDetailsView extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => TicketBookingPage(
-                                      event: event,
+                                      event: widget.event,
                                     )));
                           },
                           style: TextButton.styleFrom(

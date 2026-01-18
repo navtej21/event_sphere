@@ -1,5 +1,6 @@
 import 'package:event_sphere/modules/auth/login_view.dart';
 import 'package:event_sphere/modules/auth/welcome_view.dart';
+import 'package:event_sphere/modules/organizer/dash_board/organizer_home_screen.dart';
 import 'package:event_sphere/services/storage_service.dart';
 import 'package:event_sphere/modules/admin/admin_screen.dart';
 import 'package:event_sphere/modules/attendee/home/attendee_home_view.dart';
@@ -28,7 +29,7 @@ Future<Widget?> getInitialScreen() async{
         case 'ADMIN':
           return const AdminScreen();
         case 'ORGANIZER':
-          return const OrganizerEventsScreen();
+          return const OrganizerHomeScreen();
         default:
           return const AttendeeScreen();
       }

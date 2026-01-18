@@ -1,7 +1,10 @@
 import 'package:event_sphere/models/event_model.dart';
+import 'package:event_sphere/modules/auth/welcome_view.dart';
 import 'package:event_sphere/modules/events/create_event/create_event_view.dart';
 import 'package:event_sphere/modules/events/update_event/update_event_view.dart';
+import 'package:event_sphere/services/auth_service.dart';
 import 'package:event_sphere/services/event_service.dart';
+import 'package:event_sphere/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
 class OrganizerEventsScreen extends StatefulWidget {
@@ -25,9 +28,26 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
     _tabController = TabController(length: 3, vsync: this);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: NavigationDrawer(children: 
+      [
+
+        
+        ListTile(
+          title: Text("Logout"),
+          leading: Icon(Icons.logout),
+          onTap: () async{
+            await AuthService.logout();
+            if(context.mounted){
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+            }
+          },
+        )
+      ]),
       backgroundColor: const Color(0xFFF8F7F2),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -63,7 +83,7 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          /// ---------------- LIVE TAB ----------------
+          
           FutureBuilder<List<EventModel>?>(
             future: EventService.getLiveEvents(),
             builder: (context, snapshot) {
@@ -99,7 +119,7 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
             child: Text("Past events coming soon"),
           ),
 
-          /// ---------------- DRAFT TAB ----------------
+
           FutureBuilder<List<EventModel>?>(
             future: EventService.getDraftEvents(),
             builder: (context, snapshot) {
@@ -112,11 +132,6 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
               }
 
               final events = snapshot.data ?? [];
-
-            
-
-              
-
               if (events.isEmpty) {
                 return const Center(child: Text("No draft events"));
               }

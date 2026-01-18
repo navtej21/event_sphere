@@ -55,9 +55,13 @@ class AuthService {
 
   static Future<void> logout() async {
     await SecureStorage.deleteToken();
-  }
+    print("i have clicked");
 
-  static Future<String?> login(
+    }
+    
+  
+
+ static   Future<String?> login(
       {required String email, required String password}) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}/auth/login');
 
@@ -80,4 +84,6 @@ class AuthService {
 
     return null;
   }
+
 }
+
