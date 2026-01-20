@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/event_model.dart';
 
 class EventService {
-  static const String baseUrl = "http://192.168.0.204:8080";
+ 
 
   static Future<List<EventModel>> getEvents() async {
     final token = await SecureStorage.getToken();
@@ -74,7 +74,7 @@ class EventService {
   ) async {
     final token = await SecureStorage.getToken();
     final res = await http.post(
-      Uri.parse('${ApiConstants.baseUrl}/events'),
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events'),
       headers: {
         'Authorization': 'Bearer ${token}',
         'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ class EventService {
     print("event status code ${res.statusCode}");
 
     if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception("Failed to create event");
+      throw Exception(res.body);
     }
   }
 
@@ -94,7 +94,7 @@ class EventService {
     final token = await SecureStorage.getToken();
     final res = await http.put(
       Uri.parse(
-        '$baseUrl/events/update?eventId=$eventId',
+        '${ApiConstants.baseUrl}/events/update?eventId=$eventId',
       ),
       headers: {
         "Authorization": 'Bearer $token',
@@ -114,7 +114,7 @@ class EventService {
     final token = await SecureStorage.getToken();
     final res = await http.delete(
         Uri.parse(
-          '$baseUrl/events/delete?eventId=$eventId',
+          '${ApiConstants.baseUrl}/events/delete?eventId=$eventId',
         ),
         headers: {
           'Authorization': 'Bearer $token',
@@ -127,7 +127,7 @@ class EventService {
   }
 
   static Future<EventModel> getEventInfo(int eventid) async {
-    final res = await http.get(Uri.parse('$baseUrl/events/getinfo/$eventid'));
+    final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/events/getinfo/$eventid'));
 
     if (res.statusCode == 200) {
       return jsonDecode(res.body);
@@ -143,7 +143,7 @@ class EventService {
     final token = await SecureStorage.getToken();
     final res = await http.post(
       Uri.parse(
-        '$baseUrl/events/publish?eventId=$eventId',
+        '${ApiConstants.baseUrl}/events/publish?eventId=$eventId',
       ),
       headers: {
         'Authorization': 'Bearer $token',

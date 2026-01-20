@@ -28,22 +28,18 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
     _tabController = TabController(length: 3, vsync: this);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawer(children: 
-      [
-
-        
+      drawer: NavigationDrawer(children: [
         ListTile(
           title: Text("Logout"),
           leading: Icon(Icons.logout),
-          onTap: () async{
+          onTap: () async {
             await AuthService.logout();
-            if(context.mounted){
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+            if (context.mounted) {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => WelcomeScreen()));
             }
           },
         )
@@ -75,15 +71,12 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
               builder: (_) => const CreateEventScreen(organizerId: 302),
             ),
           );
-
-          
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          
           FutureBuilder<List<EventModel>?>(
             future: EventService.getLiveEvents(),
             builder: (context, snapshot) {
@@ -113,13 +106,9 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
               );
             },
           ),
-
-          
           const Center(
             child: Text("Past events coming soon"),
           ),
-
-
           FutureBuilder<List<EventModel>?>(
             future: EventService.getDraftEvents(),
             builder: (context, snapshot) {
@@ -147,7 +136,7 @@ class _OrganizerEventsScreenState extends State<OrganizerEventsScreen>
                           builder: (context) =>
                               UpdateEventScreen(event: event)));
                     },
-                    title: Text(event.eventId.toString()?? ''),
+                    title: Text(event.eventId.toString() ?? ''),
                     subtitle: const Text("draft"),
                   );
                 },
