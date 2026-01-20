@@ -1,6 +1,7 @@
 package com.example.eventsphere.attendee;
 
 
+import com.example.eventsphere.event.EventEntity;
 import com.example.eventsphere.ticket.TicketEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -31,4 +32,8 @@ public class AttendeeEntity {
 
     @Column
     private String name;
+
+
+
+
 }

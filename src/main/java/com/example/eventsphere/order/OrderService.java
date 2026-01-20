@@ -15,16 +15,8 @@ public class OrderService {
     @Autowired
     private EventRepository eventRepo;
 
-
-
-
-
     public boolean AvialablityCheck(Long eventid,Long quantity){
         EventEntity event=eventRepo.findByEventId(eventid);
         return event.getAvailable()>=quantity;
     }
-
-
-
-
 }

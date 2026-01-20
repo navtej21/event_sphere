@@ -15,6 +15,7 @@ import com.example.eventsphere.user.UserEntity;
 import jakarta.transaction.Transactional;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -41,12 +42,11 @@ public class BookingService {
 
 
     @Transactional
-    public void BookingTicket(UserEntity user,BookingRequestDTO bookingRequest)
+    public void BookingTicket(@AuthenticationPrincipal  UserEntity user, BookingRequestDTO bookingRequest)
     {
 
         Long eventid=bookingRequest.getEventId();
         int ticketcount=bookingRequest.getAttendees().size();
-
         boolean updated=eventService.reduceAvailableSeats(bookingRequest.getEventId(),ticketcount);
 
 

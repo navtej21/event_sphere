@@ -1,8 +1,12 @@
 package com.example.eventsphere.category;
 
 
+import com.example.eventsphere.event.EventEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "category")
@@ -18,4 +22,8 @@ public class CategoryEntity {
 
     @Column(nullable = false)
     private String categoryname;
+
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
+    private List<EventEntity> eventlist=new ArrayList<>();
+
 }
