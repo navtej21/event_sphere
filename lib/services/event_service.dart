@@ -5,8 +5,6 @@ import 'package:http/http.dart' as http;
 import '../models/event_model.dart';
 
 class EventService {
- 
-
   static Future<List<EventModel>> getEvents() async {
     final token = await SecureStorage.getToken();
 
@@ -18,6 +16,7 @@ class EventService {
         });
 
     if (response.statusCode == 200) {
+      print(token);
       final List data = jsonDecode(response.body);
 
       return data.map((e) => EventModel.fromJson(e)).toList();
@@ -28,17 +27,21 @@ class EventService {
 
   static Future<List<EventModel>> getDraftEvents() async {
     final token = await SecureStorage.getToken();
-    final response = await http
-        .get(Uri.parse('${ApiConstants.baseUrl}/events/draft'), headers: {
-      'Authorization': 'Bearer ${token}',
-      'Content-Type': 'application/json'
-    });
+    final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/organizer/events/draft'),
+        headers: {
+          'Authorization': 'Bearer ${token}',
+          'Content-Type': 'application/json'
+        });
 
-    print(response.statusCode);
+    print(token);
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
+
       print(data);
+
+      print("draft events ${response.statusCode}");
 
       return data.map((e) => EventModel.fromJson(e)).toList();
     } else {
@@ -50,12 +53,10 @@ class EventService {
     final token = await SecureStorage.getToken();
 
     final response = await http
-        .get(Uri.parse('http://192.168.0.204:8080/events/live'), headers: {
+        .get(Uri.parse('http://${ApiConstants.baseUrl}/events/live'), headers: {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json'
     });
-
-    print("my event status code ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
@@ -114,7 +115,7 @@ class EventService {
     final token = await SecureStorage.getToken();
     final res = await http.delete(
         Uri.parse(
-          '${ApiConstants.baseUrl}/events/delete?eventId=$eventId',
+          '${ApiConstants.baseUrl}/organizer/events/${eventId}',
         ),
         headers: {
           'Authorization': 'Bearer $token',
@@ -127,7 +128,8 @@ class EventService {
   }
 
   static Future<EventModel> getEventInfo(int eventid) async {
-    final res = await http.get(Uri.parse('${ApiConstants.baseUrl}/events/getinfo/$eventid'));
+    final res = await http
+        .get(Uri.parse('${ApiConstants.baseUrl}/events/getinfo/$eventid'));
 
     if (res.statusCode == 200) {
       return jsonDecode(res.body);

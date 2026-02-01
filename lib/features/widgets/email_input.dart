@@ -28,9 +28,7 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
     setState(() => loading = true);
 
     try {
-      final exists = await AuthService.checkIfExists(email);
-
-      print(exists);
+      final exists = await AuthService.checkIfExists(email.toLowerCase());
 
 
       if (!mounted) return;
