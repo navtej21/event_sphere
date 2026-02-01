@@ -32,9 +32,4 @@ public class BookingController {
         return ResponseEntity.ok("Booking Confirmed");
     }
 
-
-
-
-
-
 }

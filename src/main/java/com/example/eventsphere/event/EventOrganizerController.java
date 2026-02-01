@@ -2,6 +2,7 @@ package com.example.eventsphere.event;
 
 import com.example.eventsphere.user.UserEntity;
 import com.example.eventsphere.user.UserRepo;
+import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,6 @@ public class EventOrganizerController {
     @Autowired
     private final UserRepo userRepo;
 
-
     private UserEntity getOrganizer(UserDetails user) {
         return userRepo.findByEmail(user.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -36,6 +36,13 @@ public class EventOrganizerController {
             @AuthenticationPrincipal UserDetails user
     ) {
         return eventService.createEvent(event, getOrganizer(user));
+    }
+
+
+    @GetMapping("/draft")
+    public ResponseEntity<List<EventEntity>> getDraftEvents(@AuthenticationPrincipal UserDetails user)
+    {
+        return ResponseEntity.ok(eventService.getDraftEvents());
     }
 
     @PutMapping("/{eventId}")

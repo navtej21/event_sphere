@@ -1,31 +1,36 @@
 package com.example.eventsphere.favorite;
 
+
 import com.example.eventsphere.event.EventEntity;
 import com.example.eventsphere.user.UserEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "favorite_events",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"email", "event_id"})
-)
+@Table
+@Setter
+@Getter
 @Data
-@NoArgsConstructor
-public class FavoriteEventEntity {
-
+public class FavoriteEventEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long favoriteeventid;
+    private Long favorite_id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "email", nullable = false)
+
+    @ManyToOne
+    @JoinColumn(nullable = false,name = "user_id")
     private UserEntity user;
 
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(nullable = false,name="event_id")
     private EventEntity event;
+
+
+    @Column
+    private LocalDateTime DateTime=LocalDateTime.now();
 }

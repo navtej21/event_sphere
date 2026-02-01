@@ -9,6 +9,7 @@ import com.example.eventsphere.enums.EventVisiblity;
 import com.example.eventsphere.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,42 +32,43 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long eventId;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
     @Column(columnDefinition = "TEXT",length = 140)
     private String description;
 
-    @Column(nullable = false)
+    @Column()
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column()
     private LocalTime startTime;
 
-    @Column(nullable = false)
+    @Column()
     private LocalDate endDate;
 
-    @Column(nullable = false)
+    @Column()
     private LocalTime endTime;
 
-    @Column(nullable = false)
+    @Column()
     private String venue;
 
-    @Column(nullable = false)
+    @Column()
     private Integer capacity;
 
-    @Column(nullable = false)
-    private Integer available=capacity;
 
+
+    @Column(nullable = false)
+    private Integer available;
     @Column
     private String imageurl;
 
-    @Column(nullable = false)
+    @Column
     @Enumerated(EnumType.STRING)
     private EventFeeType FeeType=EventFeeType.FREE;
 
 
-    @Column(nullable = false)
+    @Column
     private Double Fee=0d;
 
 
@@ -90,15 +92,21 @@ public class EventEntity {
     @Enumerated(EnumType.STRING)
     private EventVisiblity visibility = EventVisiblity.PRIVATE;
 
-
-
     @Column(updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt ;
 
     @Column(updatable = true)
-    private LocalDateTime updatedAt=LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-
-
+    @PrePersist
+    public void prepersist()
+    {
+        if(available==null)
+        {
+            available=capacity;
+        }
+        createdAt=LocalDateTime.now();
+        updatedAt=LocalDateTime.now();
+    }
 
 }
