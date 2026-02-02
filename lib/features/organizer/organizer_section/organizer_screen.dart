@@ -49,7 +49,7 @@ class OrganizerEventsScreen extends StatelessWidget {
           children: [
             _liveTab(),
             const Center(child: Text("Past events coming soon")),
-            _draftTab(),
+            _draftTab(context),
           ],
         ),
       ),
@@ -79,7 +79,7 @@ class OrganizerEventsScreen extends StatelessWidget {
     });
   }
 
-  Widget _draftTab() {
+  Widget _draftTab(BuildContext context) {
     final controller = Get.put(OrganizerEventsController());
     return Obx(() {
       if (controller.isDraftLoading.value) {
@@ -90,14 +90,17 @@ class OrganizerEventsScreen extends StatelessWidget {
       }
 
       return ListView.builder(
+      
         itemCount: controller.draftEvents.length,
         itemBuilder: (_, index) {
           final event = controller.draftEvents[index];
           return ListTile(
+            leading: Icon(Icons.update),
             title: Text(event.title ?? ''),
             subtitle: const Text("Draft"),
-            onTap: () async {
-              await Get.to(() => UpdateEventScreen(event: event));
+            onTap: ()  {
+             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>UpdateEventScreen(event: event)));
+
               controller.refreshAll();
             },
           );

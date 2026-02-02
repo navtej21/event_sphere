@@ -14,8 +14,12 @@ class UpdateEventScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        
+
         title: const Text("Update Event"),
         actions: [
+
+          IconButton(onPressed: (){}, icon: Icon(Icons.done)),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: controller.deleteEvent,
@@ -61,14 +65,7 @@ class UpdateEventScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            Obx(() => ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : controller.updateEvent,
-                  child: controller.isLoading.value
-                      ? const CircularProgressIndicator()
-                      : const Text("Update Event"),
-                )),
+            
           ],
         ),
       ),
