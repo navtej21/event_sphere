@@ -5,102 +5,62 @@ import 'package:http/http.dart' as http;
 import '../models/event_model.dart';
 
 class EventService {
-  static Future<List<EventModel>> getEvents() async {
+
+  static Future<Map<String, String>> _headers() async {
     final token = await SecureStorage.getToken();
-
-    final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/events/organizerevents'),
-        headers: {
-          'Authorization': 'Bearer ${token}',
-          'Content-Type': 'application/json'
-        });
-
-    if (response.statusCode == 200) {
-      print(token);
-      final List data = jsonDecode(response.body);
-
-      return data.map((e) => EventModel.fromJson(e)).toList();
-    } else {
-      throw Exception("Failed to load events");
-    }
-  }
-
-  static Future<List<EventModel>> getDraftEvents() async {
-    final token = await SecureStorage.getToken();
-    final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/organizer/events/draft'),
-        headers: {
-          'Authorization': 'Bearer ${token}',
-          'Content-Type': 'application/json'
-        });
-
-    print(token);
-
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-
-      print(data);
-
-      print("draft events ${response.statusCode}");
-
-      return data.map((e) => EventModel.fromJson(e)).toList();
-    } else {
-      throw Exception("failed to load events");
-    }
-  }
-
-  static Future<List<EventModel>?> getLiveEvents() async {
-    final token = await SecureStorage.getToken();
-
-    final response = await http
-        .get(Uri.parse('http://${ApiConstants.baseUrl}/events/live'), headers: {
+    return {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json'
-    });
+    };
+  }
+
+
+
+
+  static Future<List<EventModel>> getEvents() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events'),
+      headers: await _headers(),
+    );
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
-
-      print("my data is this ${data}");
-
       return data.map((e) => EventModel.fromJson(e)).toList();
-    } else {
-      print(response.statusCode);
-      throw Exception("no events can be found");
     }
+    throw Exception("Failed to load organizer events");
   }
 
-  static Future<void> createEvent(
-    Map<String, dynamic> body,
-  ) async {
-    final token = await SecureStorage.getToken();
+
+  static Future<List<EventModel>> getDraftEvents() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events/draft'),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => EventModel.fromJson(e)).toList();
+    }
+    throw Exception("Failed to load draft events");
+  }
+
+
+  static Future<void> createEvent(Map<String, dynamic> body) async {
     final res = await http.post(
       Uri.parse('${ApiConstants.baseUrl}/organizer/events'),
-      headers: {
-        'Authorization': 'Bearer ${token}',
-        'Content-Type': 'application/json'
-      },
+      headers: await _headers(),
       body: jsonEncode(body),
     );
-    print("my token ${token}");
-    print("event status code ${res.statusCode}");
 
     if (res.statusCode != 200 && res.statusCode != 201) {
       throw Exception(res.body);
     }
   }
 
-  static Future<void> updateEvent(
-      int eventId, Map<String, dynamic> body) async {
-    final token = await SecureStorage.getToken();
+  static Future<void> updateEvent(int eventId, Map<String, dynamic> body) async {
     final res = await http.put(
-      Uri.parse(
-        '${ApiConstants.baseUrl}/events/update?eventId=$eventId',
-      ),
-      headers: {
-        "Authorization": 'Bearer $token',
-        "Content-Type": "application/json"
-      },
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events/$eventId'),
+      headers: await _headers(),
       body: jsonEncode(body),
     );
 
@@ -109,52 +69,66 @@ class EventService {
     }
   }
 
-  static Future<void> deleteEvent(
-    int eventId,
-  ) async {
-    final token = await SecureStorage.getToken();
+  
+  static Future<void> deleteEvent(int eventId) async {
     final res = await http.delete(
-        Uri.parse(
-          '${ApiConstants.baseUrl}/organizer/events/${eventId}',
-        ),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json'
-        });
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events/$eventId'),
+      headers: await _headers(),
+    );
 
     if (res.statusCode != 200) {
       throw Exception("Failed to delete event");
     }
   }
 
-  static Future<EventModel> getEventInfo(int eventid) async {
-    final res = await http
-        .get(Uri.parse('${ApiConstants.baseUrl}/events/getinfo/$eventid'));
-
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    } else {
-      throw Exception("Failed to load the event info");
-    }
-  }
-
-  static Future<void> publishEvent(
-    int eventId,
-    int organizerId,
-  ) async {
-    final token = await SecureStorage.getToken();
+  
+  static Future<void> publishEvent(int eventId) async {
     final res = await http.post(
-      Uri.parse(
-        '${ApiConstants.baseUrl}/events/publish?eventId=$eventId',
-      ),
-      headers: {
-        'Authorization': 'Bearer $token',
-        "Content-Type": "application/json"
-      },
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events/$eventId/publish'),
+      headers: await _headers(),
     );
 
     if (res.statusCode != 200) {
       throw Exception("Failed to publish event");
     }
+  }
+
+  /// PUT /organizer/events/{id}/cancel
+  static Future<void> cancelEvent(int eventId) async {
+    final res = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/organizer/events/$eventId/cancel'),
+      headers: await _headers(),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception("Failed to cancel event");
+    }
+  }
+
+  // ================= PUBLIC =================
+
+  /// GET /events/live
+  static Future<List<EventModel>> getLiveEvents() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/events/live'),
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => EventModel.fromJson(e)).toList();
+    }
+    throw Exception("No live events found");
+  }
+
+  /// GET /events/getinfo/{id}
+  static Future<EventModel> getEventInfo(int eventId) async {
+    final res = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/events/getinfo/$eventId'),
+    );
+
+    if (res.statusCode == 200) {
+      return EventModel.fromJson(jsonDecode(res.body));
+    }
+    throw Exception("Failed to load event info");
   }
 }

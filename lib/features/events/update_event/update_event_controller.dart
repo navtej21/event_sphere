@@ -8,13 +8,13 @@ class UpdateEventController extends GetxController {
 
   UpdateEventController(this.event);
 
-  // text controllers
+
   late final TextEditingController titleController;
   late final TextEditingController descriptionController;
   late final TextEditingController venueController;
   late final TextEditingController capacityController;
 
-  // reactive state
+
   final startDate = DateTime.now().obs;
   final endDate = DateTime.now().obs;
   final startTime = TimeOfDay.now().obs;
