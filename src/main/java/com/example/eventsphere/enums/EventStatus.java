@@ -1,8 +1,7 @@
 package com.example.eventsphere.enums;
 
 public enum EventStatus {
-    LIVE,
-    PAST,
-    DRAFT,
+   ACTIVE,
+    INACTIVE,
     CANCELLED
 }

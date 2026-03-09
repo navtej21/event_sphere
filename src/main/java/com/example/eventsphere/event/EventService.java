@@ -1,19 +1,15 @@
 package com.example.eventsphere.event;
 
-import com.example.eventsphere.enums.EventFeeType;
+import com.example.eventsphere.club.ClubEntity;
+import com.example.eventsphere.club.ClubRepository;
 import com.example.eventsphere.enums.EventStatus;
 import com.example.eventsphere.enums.EventVisiblity;
-import com.example.eventsphere.user.UserEntity;
-import com.example.eventsphere.user.UserRepo;
-import jdk.jfr.Event;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -22,28 +18,56 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    // CREATE
-    public EventEntity createEvent(EventEntity event, UserEntity organizer) {
-        event.setFee(0d);
-        event.setFeeType(EventFeeType.FREE);
-        event.setOrganizer(organizer);
-        event.setStatus(EventStatus.DRAFT);
+    @Autowired
+    private ClubRepository clubRepository;
+
+
+    // ================================
+    // [GTAG] ORGANIZER: CREATE EVENT
+    // ================================
+    public EventEntity createEvent(EventEntity event, Long clubId){
+
+        ClubEntity club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new RuntimeException("Club not found"));
+
+        event.setClub(club);
+        event.setStatus(EventStatus.INACTIVE);
         event.setVisibility(EventVisiblity.PRIVATE);
+        event.setCreatedAt(LocalDateTime.now());
+        event.setUpdatedAt(LocalDateTime.now());
+
         return eventRepository.save(event);
     }
 
 
-    public EventEntity getEventInfo(Long eventId){
-        return eventRepository.findById(eventId).orElseThrow(()->{
-            return new IllegalArgumentException("No event found");
-        });
+    // ================================
+    // [GTAG] ORGANIZER: VIEW CLUB EVENTS
+    // ================================
+    public List<EventEntity> getClubEvents(Long clubId){
+
+        return eventRepository.findByClub_ClubId(clubId);
     }
 
-    // UPDATE
-    public EventEntity updateEvent(Long eventId, EventEntity updated, Long organizerId) {
-        EventEntity event = getOrganizerEvent(eventId, organizerId);
 
-        if (event.getStatus() == EventStatus.PAST) {
+    // ================================
+    // [GTAG] EVENT INFO
+    // ================================
+    public EventEntity getEventById(Long eventId){
+
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+    }
+
+
+    // ================================
+    // [GTAG] ORGANIZER: UPDATE EVENT
+    // ================================
+    @Transactional
+    public EventEntity updateEvent(Long eventId, EventEntity updated){
+
+        EventEntity event = getEventById(eventId);
+
+        if(event.getEndDate().isBefore(LocalDate.now())){
             throw new IllegalStateException("Cannot edit past events");
         }
 
@@ -55,7 +79,6 @@ public class EventService {
         event.setEndTime(updated.getEndTime());
         event.setVenue(updated.getVenue());
         event.setCapacity(updated.getCapacity());
-        event.setCategory(updated.getCategory());
         event.setLocation(updated.getLocation());
         event.setImageurl(updated.getImageurl());
         event.setUpdatedAt(LocalDateTime.now());
@@ -63,122 +86,97 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    // PUBLISH
-    public EventEntity publishEvent(Long eventId, Long organizerId) {
-        EventEntity event = getOrganizerEvent(eventId, organizerId);
 
-        if (event.getStatus() != EventStatus.DRAFT) {
+    // ================================
+    // [GTAG] ORGANIZER: PUBLISH EVENT
+    // ================================
+    @Transactional
+    public EventEntity publishEvent(Long eventId){
+
+        EventEntity event = getEventById(eventId);
+
+        if(event.getStatus() != EventStatus.INACTIVE){
             throw new IllegalStateException("Only draft events can be published");
         }
 
-        event.setStatus(EventStatus.LIVE);
+        event.setStatus(EventStatus.ACTIVE);
         event.setVisibility(EventVisiblity.PUBLIC);
         event.setUpdatedAt(LocalDateTime.now());
 
         return eventRepository.save(event);
     }
 
-    // CANCEL (NOT DELETE)
-    public void cancelEvent(Long eventId, Long organizerId) {
-        EventEntity event = getOrganizerEvent(eventId, organizerId);
+
+    // ================================
+    // [GTAG] ORGANIZER: CANCEL EVENT
+    // ================================
+    @Transactional
+    public void cancelEvent(Long eventId){
+
+        EventEntity event = getEventById(eventId);
 
         event.setStatus(EventStatus.CANCELLED);
         event.setVisibility(EventVisiblity.PRIVATE);
-        event.setUpdatedAt(LocalDateTime.now());
 
         eventRepository.save(event);
     }
 
-    // DELETE
-    public void deleteEvent(Long eventId, Long organizerId) {
-        EventEntity event = getOrganizerEvent(eventId, organizerId);
 
-        if (event.getStatus() != EventStatus.DRAFT) {
-            throw new IllegalStateException("Only draft events can be deleted");
+    // ================================
+    // [GTAG] ORGANIZER: DELETE EVENT
+    // ================================
+    public void deleteEvent(Long eventId){
+
+        EventEntity event = getEventById(eventId);
+
+        if(event.getStatus() == EventStatus.ACTIVE){
+            throw new IllegalStateException("Cannot delete active events");
         }
 
         eventRepository.delete(event);
     }
 
-    // PUBLIC
-    public List<EventEntity> getLiveEvents() {
+
+    // ================================
+    // [GTAG] ATTENDEE: VIEW LIVE EVENTS
+    // ================================
+    public List<EventEntity> getLiveEvents(){
+
         return eventRepository.findByStatusAndVisibility(
-                EventStatus.LIVE,
+                EventStatus.ACTIVE,
                 EventVisiblity.PUBLIC
         );
     }
 
-    public List<EventEntity> getDraftEvents(){
-        return eventRepository.findByStatusAndVisibility(
-                EventStatus.DRAFT,
-                EventVisiblity.PRIVATE
-        );
-    }
+    // ================================
+// [GTAG] ATTENDEE: GET EVENT INFO
+// ================================
 
-    public EventEntity getPublicEvent(Long eventId) {
-        return eventRepository
-                .findByEventIdAndStatusAndVisibility(
-                        eventId,
-                        EventStatus.DRAFT,
-                        EventVisiblity.PRIVATE
+    public EventEntity getEventInfo(Long eventId){
 
-                )
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-    }
+        EventEntity event=eventRepository.findByEventId(eventId);
 
-    // ORGANIZER
-    public List<EventEntity> getOrganizerEvents(Long organizerId) {
-        return eventRepository.findByOrganizer_UserId(organizerId);
-    }
-
-    // INTERNAL
-    private EventEntity getOrganizerEvent(Long eventId, Long organizerId) {
-        return eventRepository
-                .findByEventIdAndOrganizer_UserId(eventId, organizerId)
-                .orElseThrow(() -> new RuntimeException("Unauthorized access"));
-    }
-
-    public void autoCompletePastEvents() {
-        eventRepository.markPastEvents(
-                LocalDate.now(),
-                LocalTime.now()
-        );
-    }
-
-    public boolean checkAvailablity(Long eventid,int quantity){
-
-        EventEntity event=eventRepository.findByEventId(eventid);
-
-        return event.getAvailable()>=quantity;
-    }
-
-    public boolean reduceAvailableSeats(Long eventid,int  quantity){
-
-
-        if(checkAvailablity(eventid,quantity)){
-            EventEntity event=eventRepository.findByEventId(eventid);
-
-            event.setAvailable(event.getAvailable()-quantity);
-
-            return true;
+        if(event==null){
+            throw new RuntimeException("no event found");
         }
 
         else{
-            return false;
+            return event;
         }
     }
 
 
-    public List<EventEntity> searchEvents(String query)
-    {
+    // ================================
+// [GTAG] ATTENDEE: SEARCH EVENTS
+// ================================
+
+
+    public  List<EventEntity> searchEvents(String query){
         if(query==null || query.trim().isEmpty()){
             return getLiveEvents();
         }
 
-        return eventRepository.searchEventLive(
-                query,EventStatus.LIVE,EventVisiblity.PUBLIC,LocalDate.now()
-        );
+        return eventRepository.searchEvents(query);
     }
-
 
 }

@@ -1,7 +1,7 @@
 package com.example.eventsphere.event;
 
-import com.example.eventsphere.attendee.AttendeeEntity;
-import com.example.eventsphere.category.CategoryEntity;
+
+import com.example.eventsphere.club.ClubEntity;
 import com.example.eventsphere.enums.EventFeeType;
 import com.example.eventsphere.enums.EventLocation;
 import com.example.eventsphere.enums.EventStatus;
@@ -9,16 +9,12 @@ import com.example.eventsphere.enums.EventVisiblity;
 import com.example.eventsphere.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Entity
@@ -73,16 +69,12 @@ public class EventEntity {
 
 
     @ManyToOne
-    @JoinColumn(name = "categoryid")
-    private CategoryEntity category;
-
-    @ManyToOne
-    @JoinColumn(name = "organizerid", nullable = false)
-    private UserEntity organizer;
+    @JoinColumn(name="club_id")
+    private ClubEntity club;
 
     @Column
     @Enumerated(EnumType.STRING)
-    private EventStatus status=EventStatus.DRAFT;
+    private EventStatus status=EventStatus.INACTIVE;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -97,6 +89,11 @@ public class EventEntity {
 
     @Column(updatable = true)
     private LocalDateTime updatedAt;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity organizer;
 
     @PrePersist
     public void prepersist()

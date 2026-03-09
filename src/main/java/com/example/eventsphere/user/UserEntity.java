@@ -3,12 +3,10 @@ package com.example.eventsphere.user;
 
 import com.example.eventsphere.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.annotation.processing.Generated;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="users")
@@ -16,6 +14,8 @@ import javax.annotation.processing.Generated;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class UserEntity {
 
 
@@ -32,5 +32,12 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRole roles=UserRole.ATTENDEE;
+
+
+    @Column
+    private String profileImage;
+
+    @Column
+    private LocalDateTime createdAt;
 
 }

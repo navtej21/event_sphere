@@ -84,6 +84,7 @@ public class UserAuthController {
         UserEntity user=repo.findByEmail(userDetails.getUsername()).orElseThrow(()->{
             return new IllegalArgumentException("user not found");
         });
+
         return ResponseEntity.ok(Map.of(
                 "name",user.getName(),
                 "email",user.getEmail()
@@ -94,6 +95,7 @@ public class UserAuthController {
     @PutMapping("/updateprofile")
     public ResponseEntity<?> UpdateProfileBio(@RequestBody ProfileUpdateBio bio,@AuthenticationPrincipal UserDetails userdetails)
     {
+
         UserEntity user= repo.findByEmail(userdetails.getUsername()).orElseThrow(()->{
             return new IllegalArgumentException("No User Found");
         });

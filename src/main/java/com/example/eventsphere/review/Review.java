@@ -13,12 +13,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "review",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"userid", "eventid"})
-        }
-)
+@Table(name="review")
 @Getter
 @Setter
 @NoArgsConstructor

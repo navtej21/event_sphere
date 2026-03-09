@@ -40,44 +40,44 @@ public class BookingService {
     @Autowired
     private OrderRepo orderRepo;
 
-
-    @Transactional
-    public void BookingTicket(@AuthenticationPrincipal  UserEntity user, BookingRequestDTO bookingRequest)
-    {
-
-        Long eventid=bookingRequest.getEventId();
-        int ticketcount=bookingRequest.getAttendees().size();
-        boolean updated=eventService.reduceAvailableSeats(bookingRequest.getEventId(),ticketcount);
-
-
-        if(updated==false){
-            throw new IllegalArgumentException("no avaiable seats");
-        }
-
-        EventEntity event=eventRepo.findByEventId(eventid);
-        OrderEntity order=new OrderEntity();
-
-        order.setUser(user);
-        order.setCreatedAT(LocalDate.now());
-        order.setEvent(event);
-        order.setTotalTickets(ticketcount);
-        order.setTotalamount(BigDecimal.ZERO);
-        orderRepo.save(order);
-
-
-        for(AttendeeDTO attendee: bookingRequest.getAttendees()){
-            TicketEntity ticket=new TicketEntity();
-            ticket.setOrder(order);
-            ticket.setEvent(event);
-
-            ticketRepo.save(ticket);
-
-            AttendeeEntity attendees=new AttendeeEntity();
-            attendees.setTicket(ticket);
-            attendees.setName(attendee.getName());
-            attendees.setEmail(attendee.getEmail());
-            attendeeRepo.save(attendees);
-        }
+//
+//    @Transactional
+//    public void BookingTicket(@AuthenticationPrincipal  UserEntity user, BookingRequestDTO bookingRequest)
+//    {
+//
+//        Long eventid=bookingRequest.getEventId();
+//        int ticketcount=bookingRequest.getAttendees().size();
+//        boolean updated=eventService.
+//
+//
+//        if(updated==false){
+//            throw new IllegalArgumentException("no avaiable seats");
+//        }
+//
+//        EventEntity event=eventRepo.findByEventId(eventid);
+//        OrderEntity order=new OrderEntity();
+//
+//        order.setUser(user);
+//        order.setCreatedAT(LocalDate.now());
+//        order.setEvent(event);
+//        order.setTotalTickets(ticketcount);
+//        order.setTotalamount(BigDecimal.ZERO);
+//        orderRepo.save(order);
+//
+//
+//        for(AttendeeDTO attendee: bookingRequest.getAttendees()){
+//            TicketEntity ticket=new TicketEntity();
+//            ticket.setOrder(order);
+//            ticket.setEvent(event);
+//
+//            ticketRepo.save(ticket);
+//
+//            AttendeeEntity attendees=new AttendeeEntity();
+//            attendees.setTicket(ticket);
+//            attendees.setName(attendee.getName());
+//            attendees.setEmail(attendee.getEmail());
+//            attendeeRepo.save(attendees);
+//        }
 
 
 
@@ -86,4 +86,3 @@ public class BookingService {
 
 
 
-}

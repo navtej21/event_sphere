@@ -17,6 +17,9 @@ import java.util.Optional;
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
+    List<EventEntity> findByClub_ClubId(Long clubId);
+
+
 
     List<EventEntity> findByStatusAndVisibility(
             EventStatus status,
@@ -28,6 +31,8 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
             EventStatus status,
             EventVisiblity eventVisiblity
     );
+
+    List<EventEntity> findByOrganizer_UserIdAndStatus(Long organizerId, EventStatus status);
 
     EventEntity findByEventId(Long eventId);
 
@@ -41,23 +46,21 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
             Long organizerId
     );
 
+
+
     @Query("""
-            SELECT e FROM EventEntity e
-            WHERE (
-            LOWER(e.title) LIKE LOWER(CONCAT('%',:query, '%'))
-            OR LOWER(e.venue) LIKE LOWER(CONCAT('%',:query,'%'))
-            )
-            
-            AND e.status=:status
-            AND e.visibility=:visibility
-            AND e.startDate>=:today
-            """)
-    public List<EventEntity> searchEventLive(
-            @Param("query") String query,
-            @Param("status") EventStatus eventStatus,
-            @Param("visibility") EventVisiblity eventVisiblity,
-            @Param("today") LocalDate today
-    );
+SELECT e
+FROM EventEntity e
+WHERE 
+(
+LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%'))
+OR LOWER(e.description) LIKE LOWER(CONCAT('%', :query, '%'))
+OR LOWER(e.venue) LIKE LOWER(CONCAT('%', :query, '%'))
+)
+AND e.status = com.example.eventsphere.enums.EventStatus.ACTIVE
+AND e.visibility = com.example.eventsphere.enums.EventVisiblity.PUBLIC
+""")
+    List<EventEntity> searchEvents(@Param("query") String query);
 
 
 

@@ -1,15 +1,11 @@
 package com.example.eventsphere.event;
 
-import com.example.eventsphere.user.UserEntity;
-import com.example.eventsphere.user.UserRepo;
-import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -18,77 +14,69 @@ import java.util.List;
 @PreAuthorize("hasRole('ORGANIZER')")
 public class EventOrganizerController {
 
+    private final EventService eventService;
 
-    @Autowired
-    private  EventService eventService;
 
-    @Autowired
-    private final UserRepo userRepo;
-
-    private UserEntity getOrganizer(UserDetails user) {
-        return userRepo.findByEmail(user.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    @PostMapping
+    // CREATE EVENT
+    @PostMapping("/{clubId}")
     public EventEntity createEvent(
+            @AuthenticationPrincipal UserDetails user,
             @RequestBody EventEntity event,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        return eventService.createEvent(event, getOrganizer(user));
+            @PathVariable Long clubId
+    ){
+        return eventService.createEvent(event, clubId);
     }
 
 
-    @GetMapping("/draft")
-    public ResponseEntity<List<EventEntity>> getDraftEvents(@AuthenticationPrincipal UserDetails user)
-    {
-        return ResponseEntity.ok(eventService.getDraftEvents());
+    // VIEW EVENTS OF CLUB
+    @GetMapping("/club/{clubId}")
+    public List<EventEntity> getClubEvents(
+
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long clubId
+    ){
+        return eventService.getClubEvents(clubId);
     }
 
+
+    // UPDATE EVENT
     @PutMapping("/{eventId}")
     public EventEntity updateEvent(
+            @AuthenticationPrincipal UserDetails user,
             @PathVariable Long eventId,
-            @RequestBody EventEntity event,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        return eventService.updateEvent(
-                eventId,
-                event,
-                getOrganizer(user).getUserId()
-        );
+            @RequestBody EventEntity event
+    ){
+        return eventService.updateEvent(eventId, event);
     }
 
+
+    // PUBLISH EVENT
     @PostMapping("/{eventId}/publish")
     public EventEntity publishEvent(
-            @PathVariable Long eventId,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        return eventService.publishEvent(eventId, getOrganizer(user).getUserId());
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long eventId
+    ){
+        return eventService.publishEvent(eventId);
     }
 
+
+    // CANCEL EVENT
     @PutMapping("/{eventId}/cancel")
-    public ResponseEntity<?> cancelEvent(
-            @PathVariable Long eventId,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        eventService.cancelEvent(eventId, getOrganizer(user).getUserId());
-        return ResponseEntity.ok("Event cancelled");
+    public void cancelEvent(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long eventId
+    ){
+        eventService.cancelEvent(eventId);
     }
 
+
+    // DELETE EVENT
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<?> deleteEvent(
-            @PathVariable Long eventId,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        eventService.deleteEvent(eventId, getOrganizer(user).getUserId());
-        return ResponseEntity.ok("Event deleted");
+    public void deleteEvent(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long eventId
+    ){
+        eventService.deleteEvent(eventId);
     }
 
-
-    @GetMapping
-    public List<EventEntity> getOrganizerEvents(
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        return eventService.getOrganizerEvents(getOrganizer(user).getUserId());
-    }
 }
