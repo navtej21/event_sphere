@@ -1,5 +1,8 @@
 package com.example.eventsphere.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserRole {
 
     ATTENDEE("Attendee"),

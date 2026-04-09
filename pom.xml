@@ -114,8 +114,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<version>3.3.5</version> <!-- or just remove version -->
 			<scope>test</scope>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
