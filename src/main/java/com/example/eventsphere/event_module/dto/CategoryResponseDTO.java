@@ -1,11 +1,11 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.dto;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class CategoryResponse {
+public class CategoryResponseDTO {
 
     private Long categoryId;
     private String categoryName;

@@ -1,6 +1,7 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.category;
 
-import com.example.eventsphere.exception.CategoryNotFound;
+import com.example.eventsphere.event_module.dto.CategoryRequestDTO;
+import com.example.eventsphere.event_module.dto.CategoryResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class CategoryService {
 
 
     // create category
-    public CategoryEntity createCategory(CategoryRequest dto){
+    public CategoryEntity createCategory(CategoryRequestDTO dto){
         CategoryEntity categoryEntity= new CategoryEntity();
         categoryEntity.setCategoryName(dto.getCategoryName());
         categoryEntity.setCategoryDescription(dto.getDescription());
@@ -33,7 +34,7 @@ public class CategoryService {
     public CategoryEntity getCategoryById(Long id){
 
         return categoryRepo.findById(id).orElseThrow(()->{
-            throw new CategoryNotFound("Category Not Found exceptipn");
+            throw new RuntimeException("Category Not Found exceptipn");
         });
     }
 
@@ -42,10 +43,11 @@ public class CategoryService {
     public void deleteCategory(Long id){
 
         CategoryEntity category=categoryRepo.findById(id).orElseThrow(()->{
-            throw new CategoryNotFound("Category Not Found");
+            throw new RuntimeException("Category Not Found");
         });
         categoryRepo.delete(category);
     }
+
 
 
 

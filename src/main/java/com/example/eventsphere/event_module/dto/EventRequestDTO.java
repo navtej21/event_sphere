@@ -1,4 +1,4 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.dto;
 
 
 import lombok.AllArgsConstructor;

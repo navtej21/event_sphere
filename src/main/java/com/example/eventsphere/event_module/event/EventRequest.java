@@ -1,6 +1,7 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.event;
 
 import com.example.eventsphere.enums.EventStatus;
+import com.example.eventsphere.event_module.category.CategoryEntity;
 import com.example.eventsphere.user_module.UserEntity;
 import jakarta.persistence.*;
 import lombok.Builder;

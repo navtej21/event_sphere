@@ -1,4 +1,4 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,5 +1,6 @@
-package com.example.eventsphere.event_module;
+package com.example.eventsphere.event_module.category;
 
+import com.example.eventsphere.event_module.event.EventEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
