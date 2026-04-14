@@ -32,35 +32,14 @@ public class UserAuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
         String token = userService.login(request);
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(
+                Map.of(
+                        "accessToken",token,
+                        "role",user
+
+        );
     }
 
 
-
-    @GetMapping("/getprofileinfo")
-    public ResponseEntity<?> getProfileBio(@AuthenticationPrincipal UserDetails userDetails){
-
-        UserEntity user= userService.getProfileBio(userDetails);
-        return ResponseEntity.ok(Map.of(
-                "name",user.getName(),
-                "email",user.getEmail()
-        ));
-    }
-
-
-    @PutMapping("/updateprofile")
-    public ResponseEntity<?> UpdateProfileBio(@RequestBody ProfileUpdateBio bio,@AuthenticationPrincipal UserDetails userdetails)
-    {
-
-        UserEntity user=userService.updateProfileBio(bio,userdetails);
-        return ResponseEntity.ok("Updated");
-    }
-
-    @GetMapping("/exists")
-    public ResponseEntity<?> checkIfExists(@RequestParam String email)
-    {
-        boolean exists= userService.checkIfExists(email);
-        return ResponseEntity.ok(exists);
-    }
 
 }
