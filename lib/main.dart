@@ -1,19 +1,34 @@
-import 'package:event_sphere/features/auth/login_view.dart';
-import 'package:event_sphere/features/auth/welcome_view.dart';
-import 'package:event_sphere/services/initial_screen.dart';
-import 'package:event_sphere/features/attendee/home/attendee_home_view.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-void main() async {
 
-  WidgetsFlutterBinding.ensureInitialized();
+import 'routes/app_routes.dart';
 
-  Widget? intialscreen=await getInitialScreen();
+void main() {
+  runApp(const EventSphereApp());
+}
 
+class EventSphereApp extends StatelessWidget {
+  const EventSphereApp({super.key});
 
-  runApp(MaterialApp(
-    
-    home: intialscreen,
-    debugShowCheckedModeBanner: false,
-  )); 
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Event Sphere',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        scaffoldBackgroundColor: Colors.grey.shade50,
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          backgroundColor: Colors.indigo,
+          foregroundColor: Colors.white,
+        ),
+      ),
+      initialRoute: Routes.login,
+      getPages: AppRoutes.pages,
+      defaultTransition: Transition.fadeIn,
+      transitionDuration:  const Duration(milliseconds: 400),
+    );
+  }
 }
