@@ -2,10 +2,14 @@ package com.example.eventsphere.user_module;
 
 
 import com.example.eventsphere.enums.UserRole;
+import com.example.eventsphere.exception_folder.BadCredentialsException;
+import com.example.eventsphere.exception_folder.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +23,7 @@ public class UserService {
     public void register(RegisterRequest registerRequest){
 
         if(userRepo.existsByEmail(registerRequest.getEmail())){
-            throw new IllegalArgumentException("User Already Exists");
+            throw new DuplicateResourceException("User Already Exists");
         }
 
 
@@ -36,11 +40,11 @@ public class UserService {
     public String login(LoginRequest request){
 
         UserEntity user=userRepo.findByEmail(request.getEmail()).orElseThrow(()->{
-            throw  new IllegalArgumentException("No User Found");
+            throw  new NoSuchElementException("No User Found");
         });
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new IllegalArgumentException("Password Not Matching");
+            throw new BadCredentialsException("Password Not Matching");
         }
 
         return jwtUtil.generateToken(request.getEmail(),user.getRoles());
@@ -50,7 +54,7 @@ public class UserService {
     public UserEntity getProfileBio(UserDetails userDetails){
 
         UserEntity user=userRepo.findByEmail(userDetails.getUsername()).orElseThrow(()->{
-            throw new IllegalArgumentException("No User Found");
+            throw new NoSuchElementException("No User Found");
         });
 
         return user;
@@ -59,7 +63,7 @@ public class UserService {
 
     public UserEntity updateProfileBio(ProfileUpdateBio bio,UserDetails userDetails){
         UserEntity user=userRepo.findByEmail(userDetails.getUsername()).orElseThrow(()->{
-            throw new IllegalArgumentException("No User Found");
+            throw new NoSuchElementException("No User Found");
         });
 
         user.setEmail(bio.getEmail());

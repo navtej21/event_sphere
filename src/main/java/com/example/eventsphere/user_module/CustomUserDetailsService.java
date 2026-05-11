@@ -5,6 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -20,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity user=repo.findByEmail(email).orElseThrow(()->{
-            return new UsernameNotFoundException("User not found");
+            return new NoSuchElementException("User not found");
         });
 
         return new CustomUserDetails(user);

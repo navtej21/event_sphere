@@ -3,10 +3,13 @@ package com.example.eventsphere.booking_module;
 
 import com.example.eventsphere.event_module.event.EventEntity;
 import com.example.eventsphere.event_module.event.EventRepo;
+import com.example.eventsphere.exception_folder.InsufficientException;
 import com.example.eventsphere.user_module.UserEntity;
 import com.example.eventsphere.user_module.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +23,19 @@ public class TicketService {
     public TicketEntity Booking(TicketRequestDTO ticketRequestDTO) {
 
         EventEntity event = eventRepo.findById(ticketRequestDTO.getEventId()).orElseThrow(() -> {
-            return new RuntimeException("No Event Found");
+            return new NoSuchElementException("Event Not Found");
         });
 
         if (event.getCapacity() < ticketRequestDTO.getQuantity()) {
-            throw new IllegalArgumentException("No Enough Seats Left");
+            throw new InsufficientException("No Enough Seats Left");
         }
 
         event.setCapacity(event.getCapacity() - ticketRequestDTO.getQuantity());
         EventEntity eventEntity=eventRepo.findById(ticketRequestDTO.getEventId()).orElseThrow(()->{
-            return new RuntimeException("No Event Not Found");
+            return new NoSuchElementException("No Event Not Found With :"+ticketRequestDTO.getEventId()+"ID");
         });
         UserEntity userEntity= userRepo.findById(ticketRequestDTO.getUserId()).orElseThrow(()->{
-            return new RuntimeException("No User Found");
+            return new NoSuchElementException("No User Found With:"+ticketRequestDTO.getUserId()+"ID");
         });
 
         TicketEntity ticketEntity = TicketEntity.builder().event(eventEntity).user(userEntity).build();

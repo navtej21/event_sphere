@@ -18,28 +18,20 @@ public class UserAuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
-
-
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request)
     {
         userService.register(request);
         return ResponseEntity.ok("user created successfully");
     }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
         String token = userService.login(request);
         return ResponseEntity.ok(
                 Map.of(
-                        "accessToken",token,
-                        "role",user
-
-        );
+                        "accessToken",token
+        ));
     }
-
-
 
 }

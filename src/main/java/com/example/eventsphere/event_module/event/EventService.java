@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +35,11 @@ public class EventService{
 
 
         CategoryEntity category = categoryRepo.findById(dto.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("No Category Found"));
+                .orElseThrow(() -> new NoSuchElementException("No Category Found"));
 
 
         UserEntity user = userRepo.findById(dto.getOrganizerId())
-                .orElseThrow(() -> new RuntimeException("No User Found"));
+                .orElseThrow(() -> new NoSuchElementException("No User Found"));
 
 
         EventEntity event = EventEntity.builder()
@@ -63,15 +64,15 @@ public class EventService{
     public EventResponseDTO updateEvent(EventRequestDTO event,Long id){
 
         EventEntity eventEntity=eventRepo.findById(id).orElseThrow(()->{
-          return   new RuntimeException("Event Not Found");
+          return   new NoSuchElementException("Event Not Found");
         });
 
         CategoryEntity categoryEntity=categoryRepo.findById(event.getCategoryId()).orElseThrow(()->{
-            return new RuntimeException("Category Not Found");
+            return new NoSuchElementException("Category Not Found");
         });
 
         UserEntity userEntity=userRepo.findById(event.getOrganizerId()).orElseThrow(()->{
-            return new RuntimeException("User Not Found");
+            return new NoSuchElementException("User Not Found");
         });
 
         eventEntity.setCapacity(event.getCapacity());
@@ -90,7 +91,7 @@ public class EventService{
 
     public void deleteEvent(Long eventId){
         EventEntity eventEntity=eventRepo.findById(eventId).orElseThrow(()->{
-            return new RuntimeException("Event Not Found Exception");
+            return new NoSuchElementException("Event Not Found Exception");
         });
         eventRepo.deleteById(eventId);
     }
@@ -111,7 +112,7 @@ public class EventService{
 
     public EventResponseDTO getEventById(Long id) {
         EventEntity event = eventRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new NoSuchElementException("Event not found"));
 
         return mapToResponse(event);
     }
