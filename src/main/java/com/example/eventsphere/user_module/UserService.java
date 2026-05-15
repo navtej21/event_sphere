@@ -1,15 +1,13 @@
 package com.example.eventsphere.user_module;
 
-
 import com.example.eventsphere.enums.UserRole;
 import com.example.eventsphere.exception_folder.BadCredentialsException;
 import com.example.eventsphere.exception_folder.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,59 +18,72 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
 
-    public void register(RegisterRequest registerRequest){
+    public void register(RegisterRequest registerRequest) {
 
-        if(userRepo.existsByEmail(registerRequest.getEmail())){
+        if (userRepo.existsByEmail(registerRequest.getEmail())) {
             throw new DuplicateResourceException("User Already Exists");
         }
 
+        UserEntity user = UserEntity.builder()
+                .email(registerRequest.getEmail())
+                .name(registerRequest.getName())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .roles(UserRole.ATTENDEE) // role is always ATTENDEE on public registration
+                .build();
 
-        UserEntity user=new UserEntity();
-        user.setEmail(registerRequest.getEmail());
-        user.setName(registerRequest.getName());
-        user.setRoles(registerRequest.getRole()!=null?registerRequest.getRole(): UserRole.ATTENDEE);
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userRepo.save(user);
     }
 
 
+    public String login(LoginRequest request) {
 
-    public String login(LoginRequest request){
+        UserEntity user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("No User Found"));
 
-        UserEntity user=userRepo.findByEmail(request.getEmail()).orElseThrow(()->{
-            throw  new NoSuchElementException("No User Found");
-        });
-
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Password Not Matching");
         }
 
-        return jwtUtil.generateToken(request.getEmail(),user.getRoles());
+        return jwtUtil.generateToken(request.getEmail(), user.getRoles());
     }
 
 
-    public UserEntity getProfileBio(UserDetails userDetails){
+    public UserProfileResponse getProfileBio(UserDetails userDetails) {
 
-        UserEntity user=userRepo.findByEmail(userDetails.getUsername()).orElseThrow(()->{
-            throw new NoSuchElementException("No User Found");
-        });
+        UserEntity user = userRepo.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("No User Found"));
 
-        return user;
+        return toProfileResponse(user);
     }
 
 
-    public UserEntity updateProfileBio(ProfileUpdateBio bio,UserDetails userDetails){
-        UserEntity user=userRepo.findByEmail(userDetails.getUsername()).orElseThrow(()->{
-            throw new NoSuchElementException("No User Found");
-        });
+    public UserProfileResponse updateProfileBio(ProfileUpdateBio bio, UserDetails userDetails) {
 
-        user.setEmail(bio.getEmail());
+        UserEntity user = userRepo.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("No User Found"));
+
         user.setName(bio.getName());
-        return userRepo.save(user);
+        UserEntity saved = userRepo.save(user);
+
+        return toProfileResponse(saved);
     }
 
 
-    public boolean checkIfExists(String email){
+    public boolean checkIfExists(String email) {
         return userRepo.existsByEmail(email);
+    }
+
+
+    // ── private helpers ──────────────────────────────────────────────────────
+
+    private UserProfileResponse toProfileResponse(UserEntity user) {
+        return UserProfileResponse.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRoles())
+                .profileImage(user.getProfileImage())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }

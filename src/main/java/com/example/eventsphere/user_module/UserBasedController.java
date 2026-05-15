@@ -1,5 +1,6 @@
 package com.example.eventsphere.user_module;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+
+@RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserBasedController {
@@ -17,7 +20,7 @@ public class UserBasedController {
     @GetMapping("/me")
     public ResponseEntity<?> getProfileBio(@AuthenticationPrincipal UserDetails userDetails){
 
-        UserEntity user= userService.getProfileBio(userDetails);
+        UserProfileResponse user= userService.getProfileBio(userDetails);
         return ResponseEntity.ok(Map.of(
                 "name",user.getName(),
                 "email",user.getEmail()
@@ -26,10 +29,10 @@ public class UserBasedController {
 
 
     @PutMapping("/me")
-    public ResponseEntity<?> UpdateProfileBio(@RequestBody ProfileUpdateBio bio, @AuthenticationPrincipal UserDetails userdetails)
+    public ResponseEntity<?> UpdateProfileBio(@NotNull  @RequestBody ProfileUpdateBio bio, @AuthenticationPrincipal UserDetails userdetails)
     {
 
-        UserEntity user=userService.updateProfileBio(bio,userdetails);
+        UserProfileResponse user=userService.updateProfileBio(bio,userdetails);
         return ResponseEntity.ok("Updated");
     }
 

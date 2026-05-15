@@ -1,42 +1,46 @@
 package com.example.eventsphere.user_module;
 
-
 import com.example.eventsphere.enums.UserRole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 public class UserEntity {
 
-
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    @Column
+
+    @Column(nullable = false, unique = true)
+    @Email
     private String email;
-    @Column
+
+    @Column(nullable = false)
+    @NotBlank
     private String name;
 
-    @Column
+    @Column(nullable = false)
+    @NotBlank
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private UserRole roles=UserRole.ATTENDEE;
-
+    @Column(nullable = false)
+    private UserRole roles = UserRole.ATTENDEE;
 
     @Column
     private String profileImage;
 
-    @Column
-    private LocalDateTime createdAt= LocalDateTime.now();
-
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

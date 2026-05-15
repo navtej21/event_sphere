@@ -4,6 +4,7 @@ package com.example.eventsphere.event_module.event;
 import com.example.eventsphere.event_module.dto.EventRequestDTO;
 import com.example.eventsphere.event_module.dto.EventResponseDTO;
 import com.example.eventsphere.user_module.UserEntity;
+import com.example.eventsphere.user_module.UserProfileResponse;
 import com.example.eventsphere.user_module.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ public class EventController {
     @PostMapping
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<EventResponseDTO> createEvent(@AuthenticationPrincipal UserDetails userDetails, @RequestBody EventRequestDTO eventRequest){
-        UserEntity user=userService.getProfileBio(userDetails);
+        UserProfileResponse user=userService.getProfileBio(userDetails);
             EventResponseDTO eventEntity = eventService.createEvent(eventRequest);
             return ResponseEntity.ok(eventEntity);
     }
